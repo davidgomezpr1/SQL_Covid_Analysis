@@ -1,0 +1,178 @@
+select * 
+from PortfolioProject..CovidVaccinations
+ORDER BY 3,4;
+
+select * 
+from PortfolioProject..CovidDeaths
+--Noticed that the continent is null for some rows so I cleaned the data by filtering out the null values.
+where continent is not null
+ORDER BY 3,4;
+
+--Select Data that we are going to use. Order by Date and location (1st and 2nd column, respectively).
+
+Select Location, date, total_cases, new_cases, total_deaths, population
+from PortfolioProject..CovidDeaths
+order by 1,2;
+
+
+-- Looking at Total Cases vs Total Deaths (Percetage of people who have been infected and have died as a result of it).
+
+Select Location, date, total_cases, coalesce(total_deaths,0) as total_deaths, coalesce((total_deaths/total_cases)*100,0) as percentage_deaths
+from PortfolioProject..CovidDeaths
+order by 1,2;
+
+-- Insights: As of yesterday (2021/11/10), you have almost 2% percent chance of dying from Covid if infected whilst the probability increases to over 3.5% in the African country of Zimbabwe.
+
+-- For the United States, the likelihood of dying if you contract covid is 1.62%:
+
+Select Location, date, total_cases, coalesce(total_deaths,0) as total_deaths, coalesce((total_deaths/total_cases)*100,0) as percentage_deaths
+from PortfolioProject..CovidDeaths
+where location like '%States%'
+and continent is not null
+order by 1,2;
+
+--Looking at the Total Cases vs Population for Spain.
+
+Select Location, date, total_cases, population, (total_cases/population)*100 as percentage_infected_population
+from PortfolioProject..CovidDeaths
+where location = 'Spain' 
+and continent is not null
+order by 1,2;
+
+-- Looking at countries with highest Infection Rates compared to Population
+
+Select Location, population, MAX(total_cases) as highest_infection_count, MAX((total_cases/population))*100 as max_percentage_infected_population
+from PortfolioProject..CovidDeaths
+group by location, population
+order by max_percentage_infected_population desc;
+
+-- Looking at countries with highest Death Count compared to Population
+
+Select Location, population, 
+	MAX(cast(total_deaths as int)) as highest_death_count, 
+	--Had to cast the total_deaths from a nvarchar to an integer so the aggregation function would work correctly.
+	MAX((cast(total_deaths as int)/population))*100 as max_percentage_dead_population
+from PortfolioProject..CovidDeaths
+where continent is not null
+group by location, population
+order by highest_death_count desc;
+
+-- Let's break it down by continent and query for top 3 continents with the highest death count.
+
+Select top 3 continent, 
+	MAX(cast(total_deaths as int)) as highest_death_count, 
+	--Had to cast the total_deaths from a nvarchar to an integer so the aggregation function would work correctly.
+	MAX((total_deaths/population))*100 as max_percentage_dead_population
+from PortfolioProject..CovidDeaths
+where continent is not null
+group by continent
+order by highest_death_count desc;
+
+
+-- Global numbers for cases and deaths by date
+
+Select date, 
+	sum(new_cases) as total_cases, 
+	sum(cast(new_deaths as int)) as total_deaths, 
+	sum(cast(new_deaths as int))/sum(new_cases)*100 as percentage_deaths
+from PortfolioProject..CovidDeaths
+where continent is not null
+group by date
+order by 1,2;
+
+/*Now, let's inner join the CovidDeaths table to the CovidVaccinations table
+Looking at Total Population vs Vaccinations*/
+
+
+
+--OPTION 1. Use a CTE 
+
+with vaccinatined_population (
+	continent,
+	location,
+	date,
+	population,
+	new_vaccinations,
+	rolling_vaccination_count)
+as
+(
+select cd.continent, 
+	cd.location, 
+	cd.date, 
+	cd.population, 
+	cv.new_vaccinations,
+/*Let's look at the rolling vaccination count with a window function. It's partitioned by location as we 
+want the count to start over once a location changes and we ordered it by location and date to get the rolling count.*/
+	sum(convert(bigint, cv.new_vaccinations)) over(partition by cd.location order by cd.location, cd.date) as rolling_vaccination_count
+--(rolling_vaccination_count/population)*100 as percentage_of_people_vaccinated
+from PortfolioProject..CovidDeaths as cd
+join PortfolioProject..CovidVaccinations as cv
+	on cd.iso_code=cv.iso_code 
+	and cd.date=cv.date
+where cd.continent is not null
+--order by 2,3
+)
+
+select *, (rolling_vaccination_count/population)*100 as percentage_of_people_vaccinated
+from vaccinatined_population;
+
+
+--OPTION 2. Use a Temp Table
+
+
+DROP TABLE if exists percent_population_vaccinated
+Create Table percent_population_vaccinated
+(
+continent					nvarchar(255),
+location					nvarchar(255),
+date						date,
+population					numeric,
+new_vaccinations			bigint,
+rolling_vaccination_count	numeric
+)
+
+
+Insert into percent_population_vaccinated
+select cd.continent, 
+	cd.location, 
+	cd.date, 
+	cd.population, 
+	cv.new_vaccinations,
+/*Let's look at the rolling vaccination count with a window function. It's partitioned by location as we 
+want the count to start over once a location changes and we ordered it by location and date to get the rolling count.*/
+	sum(convert(bigint, cv.new_vaccinations)) over(partition by cd.location order by cd.location, cd.date) as rolling_vaccination_count
+--(rolling_vaccination_count/population)*100 as percentage_of_people_vaccinated
+from PortfolioProject..CovidDeaths as cd
+join PortfolioProject..CovidVaccinations as cv
+	on cd.iso_code=cv.iso_code 
+	and cd.date=cv.date
+where cd.continent is not null
+--order by 2,3
+
+select *, (rolling_vaccination_count/population)*100 as percentage_of_people_vaccinated
+from percent_population_vaccinated;
+
+
+-- Creating View to store data for later visualizations
+
+Create View percentpopulationvaccinated as 
+select cd.continent, 
+	cd.location, 
+	cd.date, 
+	cd.population, 
+	cv.new_vaccinations,
+/*Let's look at the rolling vaccination count with a window function. It's partitioned by location as we 
+want the count to start over once a location changes and we ordered it by location and date to get the rolling count.*/
+	sum(convert(bigint, cv.new_vaccinations)) over(partition by cd.location order by cd.location, cd.date) as rolling_vaccination_count
+--(rolling_vaccination_count/population)*100 as percentage_of_people_vaccinated
+from PortfolioProject..CovidDeaths as cd
+join PortfolioProject..CovidVaccinations as cv
+	on cd.iso_code=cv.iso_code 
+	and cd.date=cv.date
+where cd.continent is not null
+--order by 2,3
+
+-- Querying off of the newly created view.
+
+select *
+from percentpopulationvaccinated;
