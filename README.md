@@ -25,6 +25,6 @@ As a Data Analyst for a UK TV channel, I was asked to obtain Covid data in orde
 - At the time of this analysis, 10.78% of the population has been infected in Spain.
 - Montenegro has the highest percentage of infections, with 23.93% of its population having had coronavirus, followed by Seychelles and Andorra, with 22.77% and 20.35%, respectively.
 - Peruvian people suffered the greatest impact, with a death count per capita of 0.6%. Eastern European countries, Bulgaria, and Bosnia and Herzegovina, had 0.37% and 0.36% of its people die from covid.
-- Suprisingly, North America has the highest death count, followed by South America and Asia. Quite alarming that the US, with only 7.6% of the world population share, is top in the list.
+- Surprisingly, North America has the highest death count, followed by South America and Asia. Quite alarming that the US, with only 7.6% of the world population share, is top in the list.
 - The number of deaths attributed to the coronavirus was the highest in the world on January, 20 2021, with 18,007 deaths in a single day.
 - Low-income African countries, Algeria, Burundi and Cameroon, have the lowest vaccination rates in the world as of 2021/11/10.
