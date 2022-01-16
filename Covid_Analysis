@@ -30,7 +30,7 @@ ORDER BY 1,2;
 while the probability jumps up to over 3.5% in the African country of Zimbabwe. This may be an indicator of a lower tier public health system,
 with less capacity to fight over the disease*/
 
-/*For other developed countries, like my native country, Spain, the probability is slightly higher than that of the UK,
+/*For other developed countries, like Spain, the probability is slightly higher than that of the UK,
 with an infection fatality rate of 1.74%, as of 2021/11/10.*/
 
 SELECT location, date, total_cases, COALESCE(total_deaths,0) AS total_deaths, COALESCE((total_deaths/total_cases)*100,0) AS percentage_deaths
