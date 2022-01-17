@@ -38,15 +38,15 @@ FROM Covid_Analysis_Project..CovidDeaths
 WHERE location ='Spain' AND date='2021-11-10'
 ORDER BY 1,2;
 
---Looking now at the Total Cases vs Population for Spain, as of 2021/11/10.
+--Looking now at the Total Cases vs Population for the United Kingdom, as of 2021/11/10.
 
 SELECT location, date, total_cases, population, ROUND((total_cases/population)*100,2) AS percentage_infected_population
 FROM Covid_Analysis_Project..CovidDeaths
-WHERE location = 'Spain' 
+WHERE location = 'United Kingdom' AND date='2021-11-10'
 AND continent IS NOT NULL
 ORDER BY 1,2;
 
--- Per the results, at the time of this analysis, 10.78% of the population has been infected in Spain.
+-- Per the results, at the time of this analysis, 13.86% of the population has been infected in the UK.
 
 -- Let's now find out the top 3 countries with the highest infection rates per capita.
 
@@ -86,7 +86,7 @@ ORDER BY highest_death_count DESC;
 /* North America has the highest death count, followed by South America and Asia. Quite alarming the that the US with only 7.6% 
 of the world population share is top in the list.*/
 
--- Let's now look at the global numbers and find out when the number of deaths was greatest. 
+-- Let's now find out when the death count was greatest both globally and in the UK. 
 
 SELECT TOP 1 date, 
 	SUM(new_cases) AS total_cases, 
@@ -97,7 +97,17 @@ WHERE continent IS NOT NULL AND total_cases IS NOT NULL
 GROUP BY date
 ORDER BY 3 DESC;
 
--- The number of deaths attributed to the coronavirus was the highest in the world on January, 20 2021, with 18,007 deaths in a single day.
+SELECT TOP 1 date, 
+	SUM(new_cases) AS total_cases, 
+	SUM(CAST(new_deaths as int)) AS total_deaths, 
+	SUM(CAST(new_deaths as int))/SUM(new_cases)*100 AS percentage_death
+FROM Covid_Analysis_Project..CovidDeaths
+WHERE continent IS NOT NULL AND total_cases IS NOT NULL AND location = 'United Kingdom'
+GROUP BY date
+ORDER BY 3 DESC;
+
+
+-- The number of deaths attributed to the coronavirus was the highest in the world on January, 20 2021, with 18,007 deaths in a single day. Similarly, the UK had its greatest fatality count on the same day, with 1,826 deaths.
 
 
 /*Now, let's join the CovidDeaths table to the CovidVaccinations table to look at
