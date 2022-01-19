@@ -18,6 +18,7 @@ As a Data Analyst for a UK TV channel, I was asked to obtain Covid data in orde
 - Data was obtained from the [Our World in Data](https://ourworldindata.org/coronavirus) website on 10th November 2021.
 - Creation of schema and tables, and import of data into SQL Server.
 - Perform data analysis to answer the business request questions.
+- Build an interactive dashboard on Tableau(https://public.tableau.com/app/profile/david.gomez5813/viz/ProjectPortfolio_16368118123250/CovidAnalysisDashboard).
 
 ## Conclusions
 
