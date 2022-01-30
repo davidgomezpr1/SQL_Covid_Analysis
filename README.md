@@ -1,4 +1,4 @@
-# [Project 9 : SQL Covid Analysis](https://github.com/davidgomezpr1/SQL_Covid_Analysis/blob/main/Covid_Analysis)
+# [SQL Covid Analysis](https://github.com/davidgomezpr1/SQL_Covid_Analysis/blob/main/Covid_Analysis)
 ![](https://images.unsplash.com/photo-1583946099379-f9c9cb8bc030?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80)
 
 ## Business Request
